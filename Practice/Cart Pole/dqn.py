@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import numpy as np
 import matplotlib.pyplot as plt
 
 # Hyperparameters
@@ -67,6 +68,9 @@ class QNet(nn.Module):
         else:
             return out.argmax().item()
 
+    def outQvalue(self, obs):
+        out = self.forward(obs)
+        return out
 
 def train(q, q_target, memory, optimizer):
     # 한 배치로 10번 학습
@@ -96,6 +100,14 @@ def main():
     scores, episodes = [], []
     print_interval = 20
     score = 0.0
+    episodeCnt = 0
+    qvalueTemp = np.array([0.0, 0.0])
+    qvalueAvgPerEpi = []
+    qvalueLeft_AvgPernEpi = []
+    qvalueRight_AvgPernEpi = []
+
+    qvalueDiff = []
+
     optimizer = optim.Adam(q.parameters(), lr=learning_rate)
 
     # 10000 episode 진행
@@ -106,6 +118,7 @@ def main():
 
         # Terminate까지 계속 수행
         while not done:
+            qvalueTemp += q.outQvalue(torch.from_numpy(s).float()).detach().numpy()
             # action from sample
             a = q.sample_action(torch.from_numpy(s).float(), epsilon)
             # Action 수행
@@ -115,7 +128,13 @@ def main():
             s = s_prime
 
             score += r
+            episodeCnt += 1
+
             if done:
+                qvalueTemp = qvalueTemp / episodeCnt
+                qvalueAvgPerEpi.append([qvalueTemp[0], qvalueTemp[1]])
+                episodeCnt = 0
+                qvalueTemp = np.array([0.0, 0.0])
                 break
 
         # 충분히 쌓일 때 까지 not train, 2000만큼 쌓이면 train 시작
@@ -125,15 +144,27 @@ def main():
         if n_epi % print_interval == 0 and n_epi != 0:
             # 20번 에피소드마다 q_target update
             q_target.load_state_dict(q.state_dict())
+
             print("EPISODE : {}, SCORE : {:.1f}, BUFFER : {}, EPSILON : {:.1f}%".format(n_epi, score / print_interval,
                                                                                            memory.size(), epsilon * 100))
-            scores.append(score/print_interval)
+            qvalueAvg = np.sum(qvalueAvgPerEpi, axis=0) / print_interval
+            qvalueLeft_AvgPernEpi.append(qvalueAvg[0] * 1000)
+            qvalueRight_AvgPernEpi.append(qvalueAvg[1] * 1000)
             episodes.append(n_epi)
-            plt.plot(episodes, scores)
-            plt.xlabel('EPISODES')
-            plt.ylabel('SCORES')
-            plt.savefig('graph_dqn.png')
 
+            plt.plot(episodes, qvalueLeft_AvgPernEpi, 'b')
+            plt.plot(episodes, qvalueRight_AvgPernEpi, 'g')
+            plt.xlabel('EPISODES')
+            plt.ylabel('AVG Q VALUE')
+            plt.savefig('graph_qvalue2.png')
+            qvalueAvgPerEpi.clear()
+
+#            scores.append(score/print_interval)
+#            episodes.append(n_epi)
+#            plt.plot(episodes, scores)
+#            plt.xlabel('EPISODES')
+#            plt.ylabel('SCORES')
+#            plt.savefig('graph_dqn.png')
             score = 0.0
 
     env.close()
