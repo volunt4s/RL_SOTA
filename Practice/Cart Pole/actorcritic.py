@@ -15,11 +15,13 @@ class ActorCritic(nn.Module):
     def __init__(self):
         super(ActorCritic, self).__init__()
         self.data = []
-
         self.fc1 = nn.Linear(4, 256)
         self.fc_pi = nn.Linear(256, 2)
         self.fc_v = nn.Linear(256, 1)
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
+        nn.init.xavier_uniform_(self.fc1.weight)
+        nn.init.xavier_uniform_(self.fc_pi.weight)
+        nn.init.xavier_uniform_(self.fc_v.weight)
 
     # Neural net 거쳐 Pi return
     def pi(self, x, softmax_dim=0):
@@ -28,7 +30,7 @@ class ActorCritic(nn.Module):
         prob = F.softmax(x, dim=softmax_dim)
         return prob
 
-    # Neural net 거쳐 value return
+    # Neural net 거쳐 value function return
     def v(self, x):
         x = F.relu(self.fc1(x))
         v = self.fc_v(x)
@@ -71,43 +73,69 @@ class ActorCritic(nn.Module):
         loss.mean().backward()
         self.optimizer.step()
 
+    def return_vauleNet(self, obs):
+        valueNet = self.forward(obs)
+        return valueNet.detach().numpy()
+
+
 def main():
     env = gym.make('CartPole-v1')
     model = ActorCritic()
     print_interval = 20
     score = 0.0
-    scores, episodes = [], []
+    value_list_max = []
+
+    # Matplotlib params
+    plt_scores, plt_episodes, plt_values = [], [], []
 
     for n_epi in range(10000):
         done = False
+        # Value params
+        value_list = []
+
         s = env.reset()
         while not done:
             for t in range(n_rollout):
                 prob = model.pi(torch.from_numpy(s).float())
                 m = Categorical(prob)
                 a = m.sample().item()
+                v = model.v(torch.from_numpy(s).float()).detach().numpy()
+                value_list.append(abs(v[0]))
+
                 s_prime, r, done, info = env.step(a)
                 model.put_data((s, a, r, s_prime, done))
-
                 s = s_prime
                 score += r
 
                 if done:
                     break
 
-            model.train_net()
+            if abs(v[0]) < 1.25:
+                model.train_net()
+
+        value_max = max(value_list)
+        #print("Max value in {:f} epi : {:f}".format(n_epi, value_max))
+        value_list_max.append(value_max) # 0 ~ n_epi
 
         if n_epi % print_interval == 0 and n_epi != 0:
             print("EPISODE : {}, SCORE : {:.1f}".format(n_epi, score/print_interval))
-            scores.append(score / print_interval)
-            episodes.append(n_epi)
-            plt.plot(episodes, scores)
-            plt.xlabel('EPISODES')
-            plt.ylabel('SCORES')
-            plt.savefig('graph_vac.png')
+            plt_scores.append(score / print_interval)
+            plt_episodes.append(n_epi)
             score = 0.0
 
+    # Plotting Data
+    plt.plot(plt_episodes, plt_scores)
+    plt.xlabel('EPISODES')
+    plt.ylabel('SCORES')
+    plt.savefig('graph_score.png')
+    plt.close()
+
+    plt.plot(range(0, 10000), value_list_max)
+    plt.xlabel('EPISODES')
+    plt.ylabel('Max abs(value) each episode')
+    plt.savefig('graph_value.png')
     env.close()
+
 
 if __name__ == '__main__':
     main()
