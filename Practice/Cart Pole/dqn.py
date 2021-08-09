@@ -1,5 +1,5 @@
 import gym
-import collections
+import collseections
 import random
 import torch
 import torch.nn as nn
