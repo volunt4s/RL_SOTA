@@ -1,11 +1,20 @@
 import torch
 import numpy as np
+import collections
+import gym
+import random
 
-array = np.array([
-    [1, 2, 3],
-    [4, 5, 6]
-])
+def main():
+    env = gym.make('CartPole-v1')
+    env.reset()
+    done = False
+    a = [0, 1]
 
-target = torch.tensor([[1], [2]])
-a = torch.tensor(array)
-print(a.gather(1, target))
+    while not done:
+        env.render()
+        obs, reward, done, _ = env.step(a[random.randint(0, 1)])
+
+    print("finished")
+    
+if __name__ == "__main__":
+    main()

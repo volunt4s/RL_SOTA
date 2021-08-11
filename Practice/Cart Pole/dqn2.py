@@ -163,19 +163,6 @@ def main():
             qvalueAvgPerEpi.clear()
             score = 0.0
 
-    # Plot Q value
-    plt.xlabel('EPISODES')
-    plt.ylabel('AVG Q VALUE', color='b')
-    plt.plot(episodes, print_Q, 'b')
-    plt.savefig('graph_q(update 20epi, no init, 128 size)')
-    plt.close()
-
-    # Plot Score
-    plt.xlabel('EPISODES')
-    plt.ylabel('SCORES', color='g')
-    plt.plot(episodes, scores, color='g')
-    plt.savefig('graph_score(update 20epi, no init, 128 size)')
-
     env.close()
 
 
