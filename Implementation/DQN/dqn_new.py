@@ -11,7 +11,7 @@ import random
 # HYPER PARAMETERS
 BUFFER_SIZE = 5000
 MINIBATCH_SIZE = 64
-EPISODES = 2000
+EPISODES = 700
 EPS_START = 1
 EPS_END = 0.01
 EPS_DECAY = 0.999
@@ -81,7 +81,7 @@ class ReplayBuffer():
 
 def train(q_train_net, q_target_net, buffer, optimizer):
     state_lst, action_lst, reward_lst, next_state_lst, done_lst = buffer.sample(MINIBATCH_SIZE)
-    
+
 
     # RGB -> 0 ~ 256 이므로 / 255
     state_lst = state_lst.permute(0, 3, 1, 2) / 255.0
@@ -109,11 +109,14 @@ def main():
     optimizer = optim.Adam(q_train_net.parameters(), lr=LEARNING_RATE)
     epsilon = EPS_START
 
+    reward_lst = []
+    episode_lst = []
+
     # Continuous action space -> DQN 적합 x -> 임의로 지정
     action_space = np.array([
-        (-1, 1, 0.2), (0, 1, 0.2), (1, 1, 0.2), # Slow go
+        (-1, 0.6, 0.2), (0, 0.6, 0.2), (1, 0.6, 0.2), # Slow go
         (-1, 0, 0.2), (0, 0, 0.2), (1, 0, 0.2), # Brake
-        (-1, 1, 0), (0, 1, 0), (1, 1, 0),       # Fast go
+        (-1, 0.7, 0), (0, 0.7, 0), (1, 0.7, 0),       # Fast go
         (-1, 0, 0), (0, 0, 0), (1, 0, 0)        # no accel
     ])
     
@@ -127,8 +130,7 @@ def main():
 
         # During episode
         while not done:
-            if epi > 500:
-                env.render()
+            #env.render()
 
             torch_state = torch.from_numpy(state.copy()).unsqueeze(0).float()
             torch_state = torch_state.permute(0, 3, 1, 2) / 255.0
@@ -164,8 +166,17 @@ def main():
         if epi % 10 == 0:
             q_target_net.load_state_dict(q_train_net.state_dict())
 
+        episode_lst.append(epi)
+        reward_lst.append(reward_sum)
+
         print("EPISODE : {:d} REWARD : {:.1f} EPSILON : {:.1f}% BUFFER : {:d} TRAIN STEP : {:d}\n".format(epi, reward_sum, epsilon*100, buffer.size(), step_cnt))
 
+    plt.plot(episode_lst, reward_lst)
+    plt.xlabel("EPISODE")
+    plt.ylabel("REWARD")
+    plt.savefig('reward result.png')
+
+    torch.save(q_train_net.state_dict(), "trained_model")
     env.close()
 
 
