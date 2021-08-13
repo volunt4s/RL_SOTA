@@ -39,7 +39,7 @@ class DQN(nn.Module):
 def main():
     env = gym.make("CarRacing-v0")
     test_agent = DQN()
-    test_agent.load_state_dict(torch.load("trained_model"))
+    test_agent.load_state_dict(torch.load("Implementation/DQN/Trained model/trained_model"))
 
     action_space = np.array([
         (-1, 0.6, 0.2), (0, 0.6, 0.2), (1, 0.6, 0.2), # Slow go
@@ -65,7 +65,7 @@ def main():
 
             if cnt > 35:
                 break
-            
+
             state = next_state
 
 

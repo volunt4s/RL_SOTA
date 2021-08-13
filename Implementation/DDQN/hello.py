@@ -1,8 +1,4 @@
-import torch
-import numpy as np
-import collections
 import gym
-import random
 
 def main():
     env = gym.make('LunarLander-v2')
