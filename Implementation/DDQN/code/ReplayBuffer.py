@@ -3,8 +3,8 @@ import torch
 import random
 
 class ReplayBuffer():
-    def __init__(self):
-        self.buffer = collections.deque()
+    def __init__(self, buffer_maxlen):
+        self.buffer = collections.deque(maxlen=buffer_maxlen)
     
     def put(self, transition):
         self.buffer.append(transition)
@@ -22,7 +22,7 @@ class ReplayBuffer():
             obs_lst.append(obs)
             done_lst.append(done)
 
-        return torch.tensor(state_lst, dtype=torch.float32), torch.tensor(action_lst), torch.tensor(reward_lst, dtype=torch.float32), torch.tensor(obs_lst), torch.tensor(done_lst)
+        return torch.tensor(state_lst, dtype=torch.float32), torch.tensor(action_lst), torch.tensor(reward_lst, dtype=torch.float32), torch.tensor(obs_lst), torch.tensor(done_lst, dtype=torch.float32)
 
     def size(self):
         return len(self.buffer)
