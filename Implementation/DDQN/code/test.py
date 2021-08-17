@@ -7,7 +7,7 @@ TEST_EPISODES = 100
 def main():
     env = gym.make('LunarLander-v2')
     agent_trained = DDQNAgent()
-    agent_trained.load_state_dict(torch.load('/Users/hong/Documents/GitHub/railabTask/Implementation/DDQN/trained model/trained_model'))
+    agent_trained.load_state_dict(torch.load('Implementation/DDQN/trained model/trained_model'))
     
     for epi in range(TEST_EPISODES):
         done = False
