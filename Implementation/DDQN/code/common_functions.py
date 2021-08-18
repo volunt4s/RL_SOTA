@@ -15,4 +15,10 @@ def plot_reward(episode_lst, reward_lst):
     plt.plot(episode_lst, reward_lst)
     plt.xlabel('EPISODES')
     plt.ylabel('SCORE')
-    plt.savefig('graph.png')
+    plt.savefig('graph_reward.png')
+
+def plot_qvalue(episode_lst, qvalue_lst):
+    plt.plot(episode_lst, qvalue_lst)
+    plt.xlabel('EPISODES')
+    plt.ylabel('AVG MAX Q VALUE')
+    plt.savefig('graph_q')

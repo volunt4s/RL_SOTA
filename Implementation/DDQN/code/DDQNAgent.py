@@ -33,4 +33,8 @@ class DDQNAgent(nn.Module):
             return out.argmax().item()
 
     def numpy_to_torch(self, element):
-        return torch.from_numpy(element) 
+        return torch.from_numpy(element)
+
+    def out_qvalue(self, state):
+        out = self.forward(state)
+        return out
