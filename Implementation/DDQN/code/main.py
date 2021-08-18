@@ -6,10 +6,7 @@ from DDQNAgent import DDQNAgent
 from ReplayBuffer import ReplayBuffer
 from train import train_ddqn
 from train import train_dqn
-from common_functions import decaying_eps
-from common_functions import load_network
-from common_functions import plot_reward
-from common_functions import plot_qvalue
+from utils import *
 
 # HYPERPARAMETER
 BATCH_SIZE = 32
