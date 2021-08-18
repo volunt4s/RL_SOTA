@@ -4,7 +4,8 @@ import torch.optim as optim
 import torch
 from DDQNAgent import DDQNAgent
 from ReplayBuffer import ReplayBuffer
-from train import train
+from train import train_ddqn
+from train import train_dqn
 from common_functions import decaying_eps
 from common_functions import load_network
 from common_functions import plot_reward
@@ -20,6 +21,7 @@ TRAIN_RATE = 10
 EPSILON_START = 1.0
 EPSILON_END = 0.05
 EPSILON_DECAY = 0.99
+WEIGHT_DECAY = 0.001
 
 def main():
     env = gym.make('LunarLander-v2')
@@ -27,7 +29,7 @@ def main():
     agent_target = DDQNAgent()
     agent_target.load_state_dict(agent_train.state_dict())
     buffer = ReplayBuffer(BUFFER_MAXLEN)
-    optimizer = optim.Adam(agent_train.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(agent_train.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     epsilon = EPSILON_START
     episode_lst, reward_lst, qvalue_lst = [], [], []
 
@@ -54,7 +56,8 @@ def main():
             # train for each step and update
             if buffer.size() > 5000:
                 if step_cnt % 10 and step_cnt != 0:
-                    train(agent_train, agent_target, buffer, optimizer, BATCH_SIZE, GAMMA)
+                    # train_dqn() or train_ddqn()
+                    train_ddqn(agent_train, agent_target, buffer, optimizer, BATCH_SIZE, GAMMA)
                 if step_cnt % 20 and step_cnt != 0:
                     load_network(agent_train, agent_target)
 
@@ -65,10 +68,10 @@ def main():
         reward_lst.append(reward_total)
         qvalue_lst.append(qvalue_total / float(step_cnt))
 
-    plot_reward(episode_lst, reward_lst)
-    plot_qvalue(episode_lst, qvalue_lst)
+    #plot_reward(episode_lst, reward_lst)
+    #plot_qvalue(episode_lst, qvalue_lst)
     # Save trained model
-    # torch.save(agent_train.state_dict(), "trained_model")
+    torch.save(agent_train.state_dict(), "trained_model")
     env.close()
 
 if __name__ == "__main__":
