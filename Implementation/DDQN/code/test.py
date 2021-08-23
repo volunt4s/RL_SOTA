@@ -15,6 +15,7 @@ def main():
         while not done:
             env.render()
             action = agent_trained.sample_action(agent_trained.numpy_to_torch(state), 0)
+            #action = env.action_space.sample()
             obs, reward, done, _ = env.step(action)
             state = obs
 
