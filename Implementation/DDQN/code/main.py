@@ -1,5 +1,4 @@
 import gym
-from torch._C import AggregationType
 import torch.optim as optim
 import torch
 from DDQNAgent import DDQNAgent
@@ -16,8 +15,8 @@ GAMMA = 0.99
 LEARNING_RATE = 0.001
 TRAIN_RATE = 10
 EPSILON_START = 1.0
-EPSILON_END = 0.05
-EPSILON_DECAY = 0.99
+EPSILON_END = 0.08
+EPSILON_DECAY = 0.995
 WEIGHT_DECAY = 0.001
 
 def main():
@@ -28,7 +27,7 @@ def main():
     buffer = ReplayBuffer(BUFFER_MAXLEN)
     optimizer = optim.Adam(agent_train.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     epsilon = EPSILON_START
-    episode_lst, reward_lst, qvalue_lst = [], [], []
+    episode_lst, reward_lst, qvalue_lst, epsilon_lst = [], [], [], []
 
     for epi in range(EPISODES):
         state = env.reset()
@@ -54,7 +53,7 @@ def main():
             if buffer.size() > 5000:
                 if step_cnt % 10 and step_cnt != 0:
                     # train_dqn() or train_ddqn()
-                    train_ddqn(agent_train, agent_target, buffer, optimizer, BATCH_SIZE, GAMMA)
+                    train_dqn(agent_train, agent_target, buffer, optimizer, BATCH_SIZE, GAMMA)
                 if step_cnt % 20 and step_cnt != 0:
                     load_network(agent_train, agent_target)
 
@@ -64,11 +63,13 @@ def main():
         episode_lst.append(epi)
         reward_lst.append(reward_total)
         qvalue_lst.append(qvalue_total / float(step_cnt))
-
-    #plot_reward(episode_lst, reward_lst)
-    #plot_qvalue(episode_lst, qvalue_lst)
+        epsilon_lst.append(epsilon*100)
+    
+    plot_reward(episode_lst, reward_lst)
+    plot_qvalue(episode_lst, qvalue_lst)
+    plot_epsilon(episode_lst, epsilon_lst)
     # Save trained model
-    torch.save(agent_train.state_dict(), "trained_model")
+    #torch.save(agent_train.state_dict(), "trained_model")
     env.close()
 
 if __name__ == "__main__":
