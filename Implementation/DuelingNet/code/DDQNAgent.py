@@ -14,9 +14,9 @@ class DDQNAgent(nn.Module):
     def __init__(self):
         super(DDQNAgent, self).__init__()
         # neural net composition
-        self.fc1 = nn.Linear(8, 128)
-        self.fc_value = nn.Linear(128, 128)
-        self.fc_adv = nn.Linear(128, 128)
+        self.fc1 = nn.Linear(8, 64)
+        self.fc_value = nn.Linear(64, 128)
+        self.fc_adv = nn.Linear(64, 128)
         self.value = nn.Linear(128, 1)
         self.adv = nn.Linear(128, 4)
 

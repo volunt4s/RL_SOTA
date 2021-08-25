@@ -12,13 +12,16 @@ def main():
     for epi in range(TEST_EPISODES):
         done = False
         state = env.reset()
+        reward_sum = 0
         while not done:
             env.render()
             action = agent_trained.sample_action(agent_trained.numpy_to_torch(state), 0)
             #action = env.action_space.sample()
             obs, reward, done, _ = env.step(action)
             state = obs
+            reward_sum += reward
 
+        print("REWARD : ", reward_sum)
     env.close()
 
 

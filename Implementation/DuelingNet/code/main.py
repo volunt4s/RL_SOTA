@@ -1,5 +1,4 @@
 import gym
-from torch._C import AggregationType
 import torch.optim as optim
 import torch
 from DDQNAgent import DDQNAgent
@@ -16,7 +15,7 @@ GAMMA = 0.99
 LEARNING_RATE = 0.001
 TRAIN_RATE = 10
 EPSILON_START = 1.0
-EPSILON_END = 0.055
+EPSILON_END = 0.08
 EPSILON_DECAY = 0.995
 WEIGHT_DECAY = 0.001
 
@@ -26,7 +25,7 @@ def main():
     agent_target = DDQNAgent()
     agent_target.load_state_dict(agent_train.state_dict())
     buffer = ReplayBuffer(BUFFER_MAXLEN)
-    optimizer = optim.Adam(agent_train.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(agent_train.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     epsilon = EPSILON_START
     episode_lst, reward_lst, qvalue_lst, epsilon_lst = [], [], [], []
 
@@ -68,8 +67,8 @@ def main():
 
     plot_reward(episode_lst, reward_lst)
     plot_qvalue(episode_lst, qvalue_lst)
-    plot_epsilon(epsilon_lst)
-    
+    plot_epsilon(episode_lst, epsilon_lst)
+
     # Save trained model
     torch.save(agent_train.state_dict(), "trained_model")
     env.close()

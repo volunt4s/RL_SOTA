@@ -12,7 +12,7 @@ def train_ddqn(agent_train, agent_target, buffer, optimizer, batch_size, gamma):
     q_prime_lst = agent_target(obs_lst).gather(1, target_action_lst)
     td_target_lst = reward_lst + gamma * q_prime_lst * done_lst
     
-    loss = F.smooth_l1_loss(q_lst, td_target_lst)
+    loss = F.mse_loss(q_lst, td_target_lst)
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()

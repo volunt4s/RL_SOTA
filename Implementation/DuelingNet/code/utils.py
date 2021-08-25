@@ -15,6 +15,7 @@ def plot_reward(episode_lst, reward_lst):
     plt.plot(episode_lst, reward_lst)
     plt.xlabel('EPISODES')
     plt.ylabel('SCORE')
+    plt.ylim((-400, 300))
     plt.savefig('graph_reward.png')
     plt.close()
 
