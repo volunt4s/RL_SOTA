@@ -6,7 +6,7 @@ def main():
     num_cnt = np.zeros((1, 101)).flatten()
     epsilon = 0.1
     # alpha 0 : uniform sampling, 1 : prioritized sampling
-    alpha = 0.9
+    alpha = 1.0
 
     priority = abs(num_lst) + epsilon
     priority = priority ** alpha
