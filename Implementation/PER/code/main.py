@@ -3,28 +3,31 @@ import torch.optim as optim
 import torch
 from DDQNAgent import DDQNAgent
 from ReplayBuffer import ReplayBuffer
-from train import train_ddqn
-from train import train_dqn
+from train import *
 from utils import *
 
 # HYPERPARAMETER
 BATCH_SIZE = 32
 BUFFER_MAXLEN = 10000
-EPISODES = 1000
+EPISODES = 100
 GAMMA = 0.99
 LEARNING_RATE = 0.001
 TRAIN_RATE = 10
 EPSILON_START = 1.0
 EPSILON_END = 0.08
 EPSILON_DECAY = 0.995
+EPSILON_SAMPLE = 0.01
 WEIGHT_DECAY = 0.001
+ALPHA = 0.7
+BETA = 0.5
+
 
 def main():
     env = gym.make('LunarLander-v2')
     agent_train = DDQNAgent()
     agent_target = DDQNAgent()
     agent_target.load_state_dict(agent_train.state_dict())
-    buffer = ReplayBuffer(BUFFER_MAXLEN)
+    buffer = ReplayBuffer(BUFFER_MAXLEN, EPSILON_SAMPLE, ALPHA, BETA)
     optimizer = optim.Adam(agent_train.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     epsilon = EPSILON_START
     episode_lst, reward_lst, qvalue_lst, epsilon_lst = [], [], [], []
@@ -45,7 +48,11 @@ def main():
 
             obs, reward, done, _ = env.step(action)
             done_mask = 0.0 if done else 1.0
-            buffer.put([state, action, reward, obs, done_mask])
+
+            transition = [state, action, reward, obs, done_mask]
+            td_error = get_td_error(agent_train, agent_target, transition, gamma=GAMMA)
+            buffer.put([td_error, transition])
+
             reward_total += reward
             state = obs
             step_cnt += 1
@@ -58,6 +65,7 @@ def main():
                     load_network(agent_train, agent_target)
 
         print("EPISODES : {:d}, REWARD : {:.1f}, EPSILON : {:.1f}%, BUFFER_SIZE : {:d} STEP CNT : {:d}".format(epi, reward_total, epsilon*100, buffer.size(), step_cnt))
+        
         epsilon = decaying_eps(epsilon, EPSILON_END, EPSILON_DECAY)
         # append list to plot
         episode_lst.append(epi)

@@ -1,5 +1,6 @@
 from DDQNAgent import DDQNAgent
 import matplotlib.pyplot as plt
+import torch
 
 def decaying_eps(epsilon, epsilon_end, epsilon_decay):
     if epsilon > epsilon_end:
@@ -33,3 +34,16 @@ def plot_epsilon(episode_lst, epsilon_lst):
     plt.ylabel('EPSILON')
     plt.savefig('graph_epsilon')
     plt.close()
+
+def get_td_error(agent_train, agent_target, transition, gamma):
+    #transition = [state, action, reward, obs, done_mask]
+    state, action, reward, obs, done_mask = transition
+    state = torch.tensor(state, dtype=torch.float32)
+    obs = torch.tensor(obs, dtype=torch.float32)
+
+    target_action = agent_train(obs).argmax().item() # get max index
+    td_target = reward + (gamma * agent_target(obs)[target_action] * done_mask)
+    q_value = agent_train(state)[action]
+    td_error = abs(td_target - q_value)
+
+    return td_error
