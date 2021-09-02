@@ -15,7 +15,7 @@ class ReplayBuffer():
         self.buffer.append(step_data)
 
     def get_priority(self):
-        # rank-based prioritization
+        # get priority(td error + epsilon) in whole memory
         td_errors = []
         for i in range(len(self.buffer)):
             td_error_item= self.buffer[i][0].detach().numpy().item()
@@ -27,10 +27,8 @@ class ReplayBuffer():
 
     def update_priority(self, td_error_lst, selected_idx):
         for i in range(len(td_error_lst)):
-            print("BEFORE UPDATE : ", self.buffer[selected_idx[i]][0])
             self.buffer[selected_idx[i]][0] = td_error_lst[i]
-            print("AFTER UPDATE : ", self.buffer[selected_idx[i]][0])
-   
+
     def sample(self, batch_size):
         priority = self.get_priority()
         probability = priority / np.sum(priority)
@@ -52,6 +50,26 @@ class ReplayBuffer():
             done_lst.append(done)
 
         return torch.tensor(state_lst, dtype=torch.float32), torch.tensor(action_lst), torch.tensor(reward_lst, dtype=torch.float32), torch.tensor(obs_lst), torch.tensor(done_lst, dtype=torch.float32), selected_idx
+    
+    def get_is_weight(self, selected_idx, batch_size):
+        # get IS-weight for sampled element
+        priority = self.get_priority()
+        probability = priority / np.sum(priority)
+        # is_weight -> IS-weight for all element
+        is_weight = (self.size() * probability) ** (-self.beta)
+        selected_is_weight = []
+        for i in range(batch_size):
+            selected_is_weight.append(is_weight[selected_idx[i]])
+        selected_is_weight = selected_is_weight / np.max(is_weight)
+        
+        return selected_is_weight
+
+    def improving_beta(self, beta_end, beta_rate):
+        if self.beta < beta_end:
+            self.beta *= beta_rate
 
     def size(self):
         return len(self.buffer)
+
+    def get_beta(self):
+        return self.beta

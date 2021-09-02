@@ -1,6 +1,13 @@
 import numpy as np
 import collections
 
-a = np.array([1, 3, 2, 5, 4])
-rank = a.argsort() + 1
-print(rank)
+a = 1
+
+print(a)
+
+def func(a):
+    a + 1
+
+func(a)
+
+print(a)
