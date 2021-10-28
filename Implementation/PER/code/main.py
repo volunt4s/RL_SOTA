@@ -10,7 +10,7 @@ from utils import *
 # HYPERPARAMETER
 BATCH_SIZE = 32
 BUFFER_MAXLEN = 10000
-EPISODES = 600
+EPISODES = 100
 GAMMA = 0.99
 LEARNING_RATE = 0.001
 TRAIN_RATE = 10
@@ -19,7 +19,7 @@ EPSILON_END = 0.08
 EPSILON_DECAY = 0.995
 EPSILON_SAMPLE = 0.01
 WEIGHT_DECAY = 0.001
-ALPHA = 0.3
+ALPHA = 0.0
 BETA_START = 0.5
 BETA_END = 1
 BETA_RATE = 1.001
@@ -77,6 +77,7 @@ def main():
         qvalue_lst.append(qvalue_total / float(step_cnt))
         epsilon_lst.append(epsilon*100)
     
+    '''
     with open('output_data.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(episode_lst)
@@ -90,6 +91,7 @@ def main():
 
     # Save trained model
     torch.save(agent_train.state_dict(), "trained_model")
+    '''
     env.close()
 
 if __name__ == "__main__":

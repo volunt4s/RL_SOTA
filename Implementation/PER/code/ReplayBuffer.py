@@ -2,6 +2,7 @@ import collections
 import torch
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 
 class ReplayBuffer():
     def __init__(self, buffer_maxlen, epsilon_sample, alpha, beta):
@@ -34,10 +35,17 @@ class ReplayBuffer():
         probability = priority / np.sum(priority)
         idx_lst = np.arange(len(self.buffer))
         selected_idx = np.random.choice(idx_lst, size=batch_size, p=probability)
+        selected_td_error = []
         minibatch = []
+
         for i in range(batch_size):
             minibatch.append(self.buffer[selected_idx[i]][1])
-        
+            selected_td_error.append(self.buffer[selected_idx[i]][0].detach().numpy().item())
+
+        plt.plot(np.arange(32), selected_td_error)
+        plt.ylim((0, 150))
+        plt.savefig('tderror.png')
+
         state_lst, action_lst, reward_lst, obs_lst, done_lst = [], [], [], [], []
 
         for transition in minibatch:

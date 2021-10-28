@@ -12,6 +12,7 @@ def train_ddqn(agent_train, agent_target, buffer, optimizer, batch_size, gamma):
     # DDQN
     target_action_lst = agent_train(obs_lst).max(1)[1].unsqueeze(1)
     q_prime_lst = agent_target(obs_lst).gather(1, target_action_lst)
+    
     td_target_lst = reward_lst + gamma * q_prime_lst * done_lst
     # get IS-weight
     is_weight = buffer.get_is_weight(selected_idx, batch_size)
