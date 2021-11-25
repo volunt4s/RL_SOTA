@@ -11,7 +11,7 @@ EPISODES = 30000
 LEARNING_RATE = 0.0001
 
 def main():
-    env = gym.make('LunarLanderContinuous-v2')
+    env = gym.make('MountainCarContinuous-v0')
     model = PPO()
     buffer = Buffer()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)

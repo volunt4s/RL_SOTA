@@ -6,9 +6,9 @@ from torch.distributions import Normal
 TEST_EPISODES = 100
 
 def main():
-    env = gym.make('LunarLanderContinuous-v2')
+    env = gym.make('BipedalWalker-v2')
     model = PPO()
-    model.load_state_dict(torch.load('Implementation/PPO_Countinuous/trained_model'))
+    model.load_state_dict(torch.load('Implementation/PPO_Countinuous/trained_model_lunar'))
     
     for epi in range(TEST_EPISODES):
         done = False
