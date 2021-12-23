@@ -17,7 +17,7 @@ GAMMA = 0.99
 TAU = 0.01
 
 def main():
-    env = gym.make("Pendulum-v0")
+    env = gym.make("MountainCarContinuous-v0")
     actor = Actor()
     critic = Critic()
     actor_target = Actor()
@@ -41,6 +41,7 @@ def main():
 
         while not done:
             action = actor(torch.from_numpy(state).float())
+            print(state.shape)
             action = action.item() + noise()[0]
             next_state, reward, done, _ = env.step([action])
             done_mask = 0.0 if done else 1.0

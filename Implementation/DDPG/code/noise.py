@@ -1,9 +1,7 @@
 import numpy as np
 
 class OrnsteinUhlenbeckProcess():
-    """ 
-    Ornstein-Uhlenbeck Noise (original code by @slowbull)
-    """
+
     def __init__(self, mu):
         self.theta = 0.15
         self.dt = 0.01
