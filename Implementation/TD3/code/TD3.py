@@ -10,9 +10,9 @@ class Actor(nn.Module):
     def __init__(self):
         super(Actor, self).__init__()
         # Neural net composition
-        self.l1 = nn.Linear(24, 256)
+        self.l1 = nn.Linear(8, 256)
         self.l2 = nn.Linear(256, 256)
-        self.l3 = nn.Linear(256, 4)
+        self.l3 = nn.Linear(256, 2)
     
     def forward(self, x):
         x = F.relu(self.l1(x))
@@ -24,11 +24,11 @@ class Critic(nn.Module):
     def __init__(self):
         super(Critic, self).__init__()
         # For Q1
-        self.l1 = nn.Linear(28, 256) # 2(State dim) + 1(Action dim)
+        self.l1 = nn.Linear(10, 256) # 2(State dim) + 1(Action dim)
         self.l2 = nn.Linear(256, 256)
         self.l3 = nn.Linear(256, 1)
         # For Q2
-        self.l4 = nn.Linear(28, 256) # 2(State dim) + 1(Action dim)
+        self.l4 = nn.Linear(10, 256) # 2(State dim) + 1(Action dim)
         self.l5 = nn.Linear(256, 256)
         self.l6 = nn.Linear(256, 1)    
 
