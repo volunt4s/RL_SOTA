@@ -1,2 +1,3 @@
-# RL study
+# RL Sota
 
+Implementation RL Sota algorithms
